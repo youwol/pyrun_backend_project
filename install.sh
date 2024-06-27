@@ -17,11 +17,13 @@ echo "Package version: $version"
 show_usage() {
     echo "  -f, --fingerprint        build fingerprint"
     echo "  -m, --modules            modules to install"
+    echo "  -p, --python             python, e.g. python3, python3.10"
     echo "  -h, --help               Display this help message"
 }
 
 FINGERPRINT=''
 MODULES=''
+PYTHON='python3'
 
 # Parse arguments
 while [ "$#" -gt 0 ]; do
@@ -32,6 +34,10 @@ while [ "$#" -gt 0 ]; do
             ;;
         --modules)
             MODULES="$2"
+            shift 2
+            ;;
+        --python)
+            PYTHON="$2"
             shift 2
             ;;
         -h|--help)
@@ -62,7 +68,7 @@ if [ -d "$VENV_DIR" ]; then
 fi
 
 echo "creating and activating new $VENV_DIR ..."
-python3 -m venv "$VENV_DIR" || exit 1
+"$PYTHON" -m venv "$VENV_DIR" || exit 1
 . "$VENV_DIR/bin/activate" || exit 1
 
 # Install wheel from ./dist folder
