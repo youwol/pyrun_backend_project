@@ -77,7 +77,7 @@ pip install --force-reinstall "./dist/$name-$version-py3-none-any.whl" || exit 1
 
 if [ -n "$MODULES" ]; then
     echo "pip install $MODULES"
-    pip install --force-reinstall "$MODULES" || exit 1
+    pip install --force-reinstall $MODULES || exit 1
 else
     echo "No additional modules requested"
 fi
