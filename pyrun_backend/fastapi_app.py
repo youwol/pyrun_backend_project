@@ -20,24 +20,21 @@ app: FastAPI = FastAPI(
     root_path=f"http://localhost:{dependencies().yw_port}/backends/pyrun_backend/{version}",
 )
 
-global_state = {}
-
 
 class CodeRequest(BaseModel):
     cellId: str
-    previousCellIds: list[str]
     code: str
     capturedIn: dict[str, Any]
     capturedOut: list[str]
 
+global_scope = {}
 
 def exec_and_capture_new_vars(code, scope):
-    initial_keys = set(scope.keys())
+    # This function was used to determine which variables were created or modified in a code cell.
+    # It turns out that it is not really possible to determine which variables were modified in a code cell.
+    # We keep a simple approach here using a single global state.
     exec(code, scope)
-    final_keys = set(scope.keys())
-    new_keys = final_keys - initial_keys
-    new_scope = {k: scope[k] for k in new_keys}
-    return new_scope
+    return scope
 
 
 @app.get("/")
@@ -49,22 +46,14 @@ async def home():
 
 @app.post("/run")
 async def run_code(request: Request, body: CodeRequest):
+    global global_scope
+
     code = body.code
     async with ContextFactory.proxied_backend_context(request).start(
             action="/run"
     ) as ctx:
 
-        if not body.previousCellIds:
-            global_state.clear()
-
-        # It may happen that the scope associated with `body.previousCellIds` is not yet available
-        # from some cell (e.g. for reactive cells).
-        # If the currently executed cell references a symbol from it, it will raise an exception.
-        # However, if the previous cell has finished execution, it will be OK.
-        # It is the responsibility of the consumer to ensure that the previous cell has finished if a symbol
-        # from it is used in the current cell.
-
-        entering_scope = functools.reduce(lambda acc, e: {**acc, **global_state.get(e, {})}, body.previousCellIds, {})
+        entering_scope = global_scope
         try:
             scope = {
                 **entering_scope,
@@ -84,7 +73,7 @@ async def run_code(request: Request, body: CodeRequest):
             error = cell_stderr.getvalue()
             await ctx.info(f"'exec(code, scope)' done in {int(1000*(end-start))} ms",
                            data={"output": output, "error": error})
-            global_state[body.cellId] = new_scope
+            global_scope = new_scope
             captured_out = {k: new_scope[k] for k in body.capturedOut if k}
 
             await ctx.info("Output scope persisted")
