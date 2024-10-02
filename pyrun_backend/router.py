@@ -21,12 +21,15 @@ The router object.
 global_scope = {}
 
 
-def exec_and_capture_new_vars(code, scope):
+async def exec_and_capture_new_vars(code, scope):
     # This function was used to determine which variables were created or modified in a code cell.
     # It turns out that it is not really possible to determine which variables were modified in a code cell.
     # We keep a simple approach here using a single global state.
-    exec(code, scope)
-    return scope
+    to_async_code = f'\nasync def __exec(): ' + ''.join(f'\n {l}' for l in code.split('\n')) + "\n return locals()"
+
+    exec(to_async_code, scope)
+    new_scope = await scope['__exec']()
+    return {**scope, **new_scope}
 
 
 @router.get("/")
