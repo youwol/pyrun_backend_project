@@ -2,6 +2,9 @@ ARG python="3.12"
 FROM python:${python}-slim
 
 ARG modules=""
+ARG apt=""
+
+RUN echo "Installing additional apt packages: ${apt}" && if [ -n "${apt}" ]; then apt-get update && apt-get install -y ${apt}; fi
 
 WORKDIR /opt/app
 
