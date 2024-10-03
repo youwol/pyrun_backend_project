@@ -1,7 +1,7 @@
 {
     "name": "pyrun_backend",
-    "version": "0.2.1",
-    "main": "dist/pyrun_backend-0.2.1-py3-none-any.whl",
+    "version": "0.2.2",
+    "main": "dist/pyrun_backend-0.2.2-py3-none-any.whl",
     "webpm": {
         "type": "backend"
     }
