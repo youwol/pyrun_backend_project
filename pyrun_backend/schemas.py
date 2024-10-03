@@ -7,7 +7,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class CodeRequest(BaseModel):
+class RunBody(BaseModel):
     """
     Body for the endpoint `/run`.
     """
@@ -30,7 +30,7 @@ class CodeRequest(BaseModel):
     """
 
 
-class CodeResponse(BaseModel):
+class RunResponse(BaseModel):
     """
     Response for the endpoint `/run`.
     """

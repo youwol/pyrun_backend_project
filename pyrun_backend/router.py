@@ -12,7 +12,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from pyrun_backend.environment import Configuration, Environment
-from pyrun_backend.schemas import CodeRequest, CodeResponse
+from pyrun_backend.schemas import RunBody, RunResponse
 
 router = APIRouter()
 """
@@ -68,9 +68,9 @@ async def home() -> Response:
 @router.post("/run")
 async def run_code(
     request: Request,
-    body: CodeRequest,
+    body: RunBody,
     config: Configuration = Depends(Environment.get_config),
-) -> CodeResponse:
+) -> RunResponse:
     """
     Run the provided code, optionally given captured input variables and returning the values of captured output.
 
@@ -108,6 +108,6 @@ async def run_code(
             captured_out = {k: new_scope[k] for k in body.capturedOut if k}
 
             await ctx.info("Output scope persisted")
-            return CodeResponse(output=output, capturedOut=captured_out, error=error)
+            return RunResponse(output=output, capturedOut=captured_out, error=error)
         except RuntimeError as e:
-            return CodeResponse(output="", capturedOut={}, error=str(e))
+            return RunResponse(output="", capturedOut={}, error=str(e))
