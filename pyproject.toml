@@ -44,6 +44,12 @@ profile = "black"
 
 [tool.pylint.'MESSAGES CONTROL']
 extension-pkg-whitelist = "pydantic"
+disable = [
+    "too-many-locals",
+    "exec-used",
+    "too-few-public-methods"
+]
+max-line-length = 120
 
 [tool.mypy]
 # ignore_missing_imports = true
